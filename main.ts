@@ -1,10 +1,9 @@
 // Bit 1
 
-let high = 0, low = 1000, current = 0; // Variables to save our temps
-let fahrenheit = true; // Do we show fahrenheit or celsius
-let op = "choose"; // This changes based on what its doing
-let opt = 1; // 1 is current, 2 is low, 3 is high
-
+let high = -1000, low = 1000, current = 0;
+let fahrenheit = true;
+let op = "choose";
+let opt = 1;
 
 function clearScreen() {
     led.stopAnimation();
@@ -25,20 +24,51 @@ function optEq(value: number, func: Function) {
         return func();
 }
 
+function hotHandler() {
+
+}
+
 function Temps() {
-    current = input.temperature(); // Pull temperature from bit
-    if (fahrenheit) { // if we are in fahrenheit, 
-        current = (current * 9/5) + 32; // do the calculations to convert to fahrenheit
+    current = input.temperature();
+    hotHandler();
+    if (fahrenheit) { 
+        current = (current * 9/5) + 32;
     }
-    if (current > high) { // if the current temp is higher than the last high, 
-        high = current; // update with the new temp
+    if (current > high) {
+        high = current;
     }
-    if (current < low) { // if the current temp is lower than the last low,
-        low = current; // update with the new temp
+    if (current < low) {
+        low = current;
     }
 }
 
-function buttonHandler() {
+function showingBtnHandler() {
+    opEq("show", () => {
+        opt = 1;
+        clearScreen();
+        op = "choose";
+    });
+}
+
+function buttonAhandler() {
+    opEq("choose", () => {
+        clearScreen();
+        opt += 1;
+    })
+    opEq("show", showingBtnHandler);
+}
+
+function buttonBhandler() {
+    if (op === "show") return;
+    clearScreen();
+    op = "show";
+}
+
+input.onButtonPressed(Button.A, buttonAhandler);
+input.onButtonPressed(Button.B, buttonBhandler);
+input.onButtonPressed(Button.AB, showingBtnHandler);
+
+function main() {
     Temps();
     opEq("choose", () => {
         optEq(4, () => {
@@ -66,32 +96,5 @@ function buttonHandler() {
         });
     });
 }
-
-function showingBtnHandler() {
-    opEq("show", () => {
-        opt = 1;
-        clearScreen();
-        op = "choose";
-    });
-}
-
-function buttonAhandler() {
-    opEq("choose", () => {
-        clearScreen();
-        opt += 1;
-    })
-    opEq("show", showingBtnHandler);
-}
-
-function buttonBhandler() {
-    clearScreen();
-    op = "show";
-}
-
-input.onButtonPressed(Button.A, buttonAhandler);
-input.onButtonPressed(Button.B, buttonBhandler);
-input.onButtonPressed(Button.AB, showingBtnHandler);
-
-let main = buttonHandler;
 
 basic.forever(main);
